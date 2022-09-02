@@ -1,0 +1,7 @@
+{
+  "name": "sherpa",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
