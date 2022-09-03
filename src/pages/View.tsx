@@ -11,12 +11,13 @@ import { arrowBack, arrowForward, home, menu } from "ionicons/icons";
 import { RouteChildrenProps } from "react-router";
 
 import { useState } from "react";
-import useStorage from "../hooks/useStorage";
+import { Steps } from "../types";
 
 const View: React.FC<RouteChildrenProps> = ({ history }) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [activated, setActivated] = useState<boolean>(true);
-  const { savedSteps } = useStorage();
+  const [src, setSrc] = useState<string>("");
+  const [steps, saveSteps] = useState<Steps>([]);
 
   const nextStep = () => {
     setCurrentStep(currentStep + 1);
@@ -25,6 +26,15 @@ const View: React.FC<RouteChildrenProps> = ({ history }) => {
     setCurrentStep(currentStep - 1);
   };
   const toggleActivated = () => setActivated(!activated);
+
+  const importFile = (e: any) => {
+    const selectedFile = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      setSrc(event?.target?.result as string);
+    };
+    reader.readAsDataURL(selectedFile);
+  };
 
   return (
     <IonPage>
@@ -40,7 +50,7 @@ const View: React.FC<RouteChildrenProps> = ({ history }) => {
         <IonFabList side="start">
           <IonFabButton
             onClick={nextStep}
-            disabled={currentStep === savedSteps.length - 1}
+            disabled={currentStep === steps.length - 1}
           >
             <IonIcon icon={arrowForward} />
           </IonFabButton>
@@ -53,10 +63,23 @@ const View: React.FC<RouteChildrenProps> = ({ history }) => {
         </IonFabList>
       </IonFab>
       <IonContent fullscreen>
-        <WithMarkers
-          src="sample.jpeg"
-          markers={savedSteps.length ? savedSteps[currentStep] : []}
-        />
+        <div
+          style={{
+            flexDirection: "column",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {!!steps.length && (
+            <WithMarkers
+              src={src}
+              markers={steps.length ? steps[currentStep] : []}
+            />
+          )}
+          <input onChange={importFile} type="file"></input>
+          <input onChange={(e) => saveSteps(JSON.parse(e.target.value))} />
+        </div>
       </IonContent>
     </IonPage>
   );

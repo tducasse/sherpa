@@ -1,14 +1,13 @@
 import {
+  IonButton,
   IonContent,
   IonFab,
   IonFabButton,
   IonFabList,
   IonIcon,
+  IonModal,
   IonPage,
 } from "@ionic/react";
-import { useState } from "react";
-import WithMarkers from "../components/WithMarkers";
-import { Marker, Steps } from "../types";
 import {
   arrowBack,
   arrowForward,
@@ -17,14 +16,27 @@ import {
   menu,
   save,
 } from "ionicons/icons";
+import { useState } from "react";
 import { RouteComponentProps } from "react-router";
-import useStorage from "../hooks/useStorage";
+import WithMarkers from "../components/WithMarkers";
+import { Marker, Steps } from "../types";
 
 const Create: React.FC<RouteComponentProps> = ({ history }) => {
   const [steps, setSteps] = useState<Steps>([]);
   const [markers, setMarkers] = useState<Marker[]>([]);
   const [activated, setActivated] = useState<boolean>(true);
-  const { saveSteps } = useStorage();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const [src, setSrc] = useState<string>("");
+
+  const importFile = (e: any) => {
+    const selectedFile = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      setSrc(event?.target?.result as string);
+    };
+    reader.readAsDataURL(selectedFile);
+  };
 
   const addMarker = (marker: Marker) => setMarkers([...markers, marker]);
   const resetMarkers = () => setMarkers([]);
@@ -39,9 +51,7 @@ const Create: React.FC<RouteComponentProps> = ({ history }) => {
   const submit = () => {
     const newSteps = [...steps, markers];
     setSteps(newSteps);
-    setMarkers([]);
-    saveSteps(newSteps);
-    history.replace("/home");
+    setIsOpen(true);
   };
   const toggleActivated = () => setActivated(!activated);
 
@@ -75,12 +85,30 @@ const Create: React.FC<RouteComponentProps> = ({ history }) => {
         </IonFabList>
       </IonFab>
       <IonContent fullscreen>
-        <WithMarkers
-          src="sample.jpeg"
-          markers={markers}
-          onAddMarker={addMarker}
-        />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
+          <WithMarkers src={src} markers={markers} onAddMarker={addMarker} />
+          <input onChange={importFile} type="file"></input>
+        </div>
       </IonContent>
+      <IonModal
+        isOpen={isOpen}
+        trigger="open-modal"
+        canDismiss={true}
+        onWillDismiss={() => history.replace("/")}
+      >
+        <IonContent>
+          <div>copy this</div>
+          <input value={JSON.stringify(steps)} readOnly />
+          <IonButton onClick={() => setIsOpen(false)}>Close</IonButton>
+        </IonContent>
+      </IonModal>
     </IonPage>
   );
 };

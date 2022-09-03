@@ -4,11 +4,12 @@ import { Marker } from "../types";
 const BUFFER = 10;
 
 const WithMarkers: React.FC<{
-  src: string;
+  src?: string;
   onAddMarker?: Function;
   markers: Marker[];
 }> = ({ src, onAddMarker, markers }) => {
   const imgRef = useRef<HTMLImageElement>(null);
+
   const onClick = (e: MouseEvent<HTMLElement>) => {
     if (!(markers.length < 4 && imgRef?.current && onAddMarker)) return;
     onAddMarker(
@@ -20,15 +21,11 @@ const WithMarkers: React.FC<{
     );
   };
 
-  return (
+  return src ? (
     <div
       style={{
         position: "relative",
         margin: "0 auto",
-        ...(imgRef.current?.clientWidth && {
-          width: imgRef.current?.clientWidth,
-          height: imgRef.current?.clientHeight,
-        }),
       }}
     >
       <img
@@ -64,7 +61,7 @@ const WithMarkers: React.FC<{
         </div>
       ))}
     </div>
-  );
+  ) : null;
 };
 
 const getColor = (index: number) => {
