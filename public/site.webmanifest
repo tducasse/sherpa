@@ -1,6 +1,7 @@
 {
     "name": "Sherpa",
     "short_name": "Sherpa",
+    "start_url": "https://sherpa.tducasse.com",
     "icons": [
        {
           "src": "/assets/icon/android-chrome-192x192.png",
